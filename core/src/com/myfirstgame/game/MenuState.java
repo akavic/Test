@@ -4,108 +4,142 @@ package com.myfirstgame.game;
  * Created by bobby_000 on 13/03/2016.
  */
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.OrthographicCamera;
+
+import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.Input.Keys;
+
 
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.sun.javafx.scene.control.skin.MenuButtonSkin;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 
 import java.awt.Rectangle;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 
-import javafx.scene.control.Skin;
+
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
+
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 
 
 /**
  * Created by bobby_000 on 10/03/2016.
  */
-public class MenuState extends State {
+public class MenuState implements Screen {
 
+    private Stage stage;
 
-  ;
+    private Skin skin;
+    private Table table;
+    private TextButton singlePlayer,multiPlayer;
+    MyGdxGame game;
 
-    private Texture background;
-    private Texture singlePlayer;
-    private Texture Multiplayer;
-    OrthographicCamera camera;
-
-
-
-    public MenuState(GameStateManager gsm) {
-        super(gsm);
-
-        background=new Texture("wood.jpg");
-        singlePlayer=new Texture(Gdx.files.internal("Singleplayer1.png"));
-        Multiplayer =new Texture(Gdx.files.internal("Multiplayer1.png"));
-       // camera.setToOrtho(true,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
-
-
-
-    }
 
 
     @Override
-    protected void handleInput() {
-        if(Gdx.input.isTouched())
-        {
-            Vector3 tmp= new Vector3(Gdx.input.getX(),Gdx.input.getY(),0);
-            camera.unproject(tmp);
-            Rectangle singleBtn= new Rectangle((Gdx.graphics.getWidth()/4)-(singlePlayer.getWidth()/2),(Gdx.graphics.getHeight()/2)-(singlePlayer.getHeight()/2),singlePlayer.getWidth(),singlePlayer.getHeight());
-            Rectangle multiBtn= new Rectangle((Gdx.graphics.getWidth()/2)-(Multiplayer.getWidth()/2),(Gdx.graphics.getHeight()/2)-(Multiplayer.getHeight()/2),Multiplayer.getWidth(),Multiplayer.getHeight());
+    public void show() {
 
-            if(singleBtn.contains(tmp.x,tmp.y))
-            {
-                gsm.push(new PlayState(gsm)); // sat you want to be active
+        stage=new Stage();
+        skin= new Skin(Gdx.files.internal("uiskin.json"));
+        table=new Table();
+        Gdx.input.setInputProcessor(stage);
+        // Gdx.gl.glClearColor(1, 0, 0, 1);
+
+        table.setBounds(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
+
+       //stage consume events
+
+        singlePlayer=new TextButton("Singleplayer",skin);
+        multiPlayer =new TextButton("Multiplayer",skin);
+
+        singlePlayer.addListener(new ActorGestureListener() {
+            @Override
+            public void tap(InputEvent event, float x, float y, int count,
+                            int button) {
+                super.tap(event,x,y,count,button);
+                Gdx.app.log("click", "performed");
             }
-            else if(multiBtn.contains(tmp.x,tmp.y)){
-                gsm.push(new Sample(gsm));
+        });
+       /* multiPlayer.addListener(new ClickListener(){
+
+            public void clicked(InputEvent event,float x,float y){
+               //game.setScreen((Screen) new Sample(game));
+                stage.addAction(Actions.sequence(Actions.fadeOut(2), Actions.run(new Runnable() {
+                    @Override
+                    public void run() {
+                        //next state
+                        Gdx.app.log("click","performed");
+                    }
+                })));
             }
-        }
+        });*/
+        singlePlayer.center();
+        multiPlayer.center();
+
+
+        table.add(singlePlayer).width(Gdx.graphics.getWidth()/5).height(Gdx.graphics.getHeight()/7);
+        table.row();
+        table.getCell(singlePlayer).spaceBottom(40);
+        table.add(multiPlayer).width(Gdx.graphics.getWidth()/5).height(Gdx.graphics.getHeight()/7);
+        singlePlayer.getLabel().setScale(10);
+        singlePlayer.getLabel().setWidth(500);
+        //table.debug();
+        stage.addActor(table);
+
+
+
+
+
     }
+    @Override
+    public void render(float delta) {
+        // Gdx.gl.glClearColor(1, 0, 0, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        stage.act(Math.min(Gdx.graphics.getDeltaTime(),1/30f));
+        stage.draw();
 
-
+    }
 
     @Override
-    public void update(float dt) {
-        handleInput();
+    public void resize(int width, int height) {
 
     }
 
     @Override
-    public void render(SpriteBatch sb) {
-        sb.begin();
-    // draw background
-
-        sb.draw(background,0,0,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
-
-        sb.draw(singlePlayer,(Gdx.graphics.getWidth()/4)-(singlePlayer.getWidth()/2),(Gdx.graphics.getHeight()/2)-(singlePlayer.getHeight()/2),singlePlayer.getWidth(),singlePlayer.getHeight());
-        sb.draw(Multiplayer,(Gdx.graphics.getWidth()/2)-(Multiplayer.getWidth()/2),(Gdx.graphics.getHeight()/2)-(Multiplayer.getHeight()/2),singlePlayer.getWidth(),Multiplayer.getHeight());
-
-
-
-        sb.end();
+    public void pause() {
 
     }
 
+    @Override
+    public void resume() {
 
+    }
+
+    @Override
+    public void hide() {
+
+    }
 
     @Override
     public void dispose() {
-        background.dispose();
-        singlePlayer.dispose();
-        Multiplayer.dispose();
+        skin.dispose();
+        stage.dispose();
+
     }
 }
